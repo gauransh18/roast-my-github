@@ -1,7 +1,4 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
-
-const client = new Anthropic();
 
 const SYSTEM_PROMPT = `You are a razor-sharp comedy roaster who specializes in GitHub profiles. Your roasts are savage, witty, and hyper-specific — you dig into the actual numbers, repo names, and language choices to find the funniest angles. You highlight the gap between a developer's ambitions and their actual GitHub activity. Keep it fun and punchy, never mean-spirited. Write in a direct, flowing stand-up comedy style — no bullet points, no headers, just 2-4 punchy paragraphs. Be specific: reference their actual repos, their follower-to-following ratio, how long they've been on GitHub vs what they have to show for it, their top language choices, and anything else you can riff on.`;
 
@@ -79,36 +76,6 @@ ${repos
 `.trim();
 }
 
-async function streamClaude(context: string): Promise<ReadableStream> {
-  const stream = client.messages.stream({
-    model: "claude-opus-4-8",
-    max_tokens: 1024,
-    thinking: { type: "adaptive" },
-    system: SYSTEM_PROMPT,
-    messages: [{ role: "user", content: `Roast this GitHub profile:\n\n${context}` }],
-  });
-
-  const encoder = new TextEncoder();
-  return new ReadableStream({
-    async start(controller) {
-      try {
-        for await (const chunk of stream) {
-          if (
-            chunk.type === "content_block_delta" &&
-            chunk.delta.type === "text_delta"
-          ) {
-            controller.enqueue(encoder.encode(chunk.delta.text));
-          }
-        }
-      } catch (err) {
-        controller.error(err);
-      } finally {
-        controller.close();
-      }
-    },
-  });
-}
-
 async function streamNvidia(context: string): Promise<ReadableStream> {
   const res = await fetch(
     "https://integrate.api.nvidia.com/v1/chat/completions",
@@ -177,7 +144,7 @@ async function streamNvidia(context: string): Promise<ReadableStream> {
 
 export async function POST(req: NextRequest) {
   try {
-    const { username, provider = "claude" } = await req.json();
+    const { username } = await req.json();
     if (!username?.trim()) {
       return new Response(JSON.stringify({ error: "Username is required" }), {
         status: 400,
@@ -187,11 +154,7 @@ export async function POST(req: NextRequest) {
 
     const { profile, repos } = await fetchGitHubData(username.trim());
     const context = buildRoastContext(profile, repos);
-
-    const readable =
-      provider === "nvidia"
-        ? await streamNvidia(context)
-        : await streamClaude(context);
+    const readable = await streamNvidia(context);
 
     return new Response(readable, {
       headers: { "Content-Type": "text/plain; charset=utf-8" },

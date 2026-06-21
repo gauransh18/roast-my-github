@@ -3,16 +3,8 @@
 import { useRef, useState } from "react";
 import { Flame } from "lucide-react";
 
-type Provider = "claude" | "nvidia";
-
-const PROVIDERS: { id: Provider; label: string; sublabel: string }[] = [
-  { id: "claude", label: "Claude", sublabel: "Opus 4.8" },
-  { id: "nvidia", label: "Kimi K2", sublabel: "via NVIDIA" },
-];
-
 export default function Page() {
   const [username, setUsername] = useState("");
-  const [provider, setProvider] = useState<Provider>("claude");
   const [roast, setRoast] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -32,7 +24,7 @@ export default function Page() {
       const res = await fetch("/api/roast", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: username.trim(), provider }),
+        body: JSON.stringify({ username: username.trim() }),
         signal: abortRef.current.signal,
       });
 
@@ -76,32 +68,6 @@ export default function Page() {
       <div className="w-12 h-px" style={{ backgroundColor: "var(--color-border)" }} />
 
       <section className="space-y-4">
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-medium tracking-widest uppercase" style={{ color: "var(--color-muted-foreground)" }}>
-            Model
-          </span>
-          <div className="flex gap-1.5">
-            {PROVIDERS.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => setProvider(p.id)}
-                disabled={loading}
-                className="px-3 py-1.5 text-xs font-medium rounded-full border transition-colors disabled:cursor-not-allowed"
-                style={
-                  provider === p.id
-                    ? { backgroundColor: "var(--color-foreground)", color: "var(--color-background)", borderColor: "var(--color-foreground)" }
-                    : { borderColor: "var(--color-border)", color: "var(--color-muted-foreground)" }
-                }
-              >
-                {p.label}
-                <span style={{ opacity: provider === p.id ? 0.6 : 0.4 }} className="ml-1.5">
-                  {p.sublabel}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-
         <div className="flex gap-3">
           <div className="relative flex-1">
             <span
