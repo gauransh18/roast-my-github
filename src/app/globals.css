@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme {
+  --radius: 0.75rem;
+
+  --color-background: hsl(40 20% 99%);
+  --color-foreground: hsl(20 10% 12%);
+  --color-secondary: hsl(40 10% 94%);
+  --color-secondary-foreground: hsl(20 10% 25%);
+  --color-muted-foreground: hsl(20 5% 50%);
+  --color-accent: hsl(40 15% 92%);
+  --color-border: hsl(40 10% 88%);
+  --color-input: hsl(40 10% 88%);
+  --color-ring: hsl(20 10% 30%);
+  --color-destructive: hsl(0 70% 50%);
+
+  --font-family-sans: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+.dark {
+  --color-background: hsl(220 15% 8%);
+  --color-foreground: hsl(40 10% 95%);
+  --color-secondary: hsl(220 10% 16%);
+  --color-secondary-foreground: hsl(40 10% 85%);
+  --color-muted-foreground: hsl(40 5% 55%);
+  --color-accent: hsl(220 10% 18%);
+  --color-border: hsl(220 10% 18%);
+  --color-input: hsl(220 10% 18%);
+  --color-ring: hsl(40 10% 70%);
+  --color-destructive: hsl(0 60% 40%);
+}
+
+* { border-color: var(--color-border); }
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+}
